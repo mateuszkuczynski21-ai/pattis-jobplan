@@ -1,0 +1,351 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pattis Jobplan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Startseite mit sechs Kacheln, Klick öffnet ein Thema, darin klappen die Wege einzeln auf. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --surface2:#f5f7f9; --ink:#14233a; --muted:#546377; --line:#d5dce4;
+  --focus:#0b5fff; --warn-bg:#fff3d6; --warn-ink:#5c3d00; --good:#1d7a46; --mid:#a56a00; --bad:#a7342b;
+  --c-feuer:#b4322a; --c-tiere:#2f7a4d; --c-schutz:#2b4a7a; --c-zoll:#8a6a1a; --c-ostsee:#1f7a8c; --c-dual:#5b4a8a; --c-call:#14233a;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif; --body:'Figtree','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1722; --surface:#182231; --surface2:#1e2a3b; --ink:#e8edf3; --muted:#9aa9bb; --line:#2b3a4f;
+  --focus:#7aa7ff; --warn-bg:#3a2e10; --warn-ink:#f3d890; --good:#5fcf8c; --mid:#e0a63a; --bad:#ff8a80;
+  --c-feuer:#a02d26; --c-tiere:#2a6c45; --c-schutz:#2f4f86; --c-zoll:#7a5d17; --c-ostsee:#1b6a7a; --c-dual:#54447f; --c-call:#2b3a4f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1722; --surface:#182231; --surface2:#1e2a3b; --ink:#e8edf3; --muted:#9aa9bb; --line:#2b3a4f;
+  --focus:#7aa7ff; --warn-bg:#3a2e10; --warn-ink:#f3d890; --good:#5fcf8c; --mid:#e0a63a; --bad:#ff8a80;
+  --c-feuer:#a02d26; --c-tiere:#2a6c45; --c-schutz:#2f4f86; --c-zoll:#7a5d17; --c-ostsee:#1b6a7a; --c-dual:#54447f; --c-call:#2b3a4f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+a{color:var(--focus)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.crumb{font-size:.9rem;color:var(--muted)}
+.back{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;min-height:44px}
+h1{font-size:clamp(1.9rem,5.5vw,2.7rem)}
+.lead{color:var(--muted);margin:8px 0 0;max-width:60ch}
+.alert{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:12px 14px;margin:20px 0 0}
+.alert b{font-weight:700}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:22px}
+.tile{display:flex;flex-direction:column;gap:6px;text-align:left;border:0;border-radius:14px;padding:18px;color:#fff;min-height:132px;position:relative}
+.tile h2{font-size:1.5rem}
+.tile p{margin:0;font-size:.95rem;opacity:.94}
+.tile .n{margin-top:auto;font-size:.85rem;font-weight:600;opacity:.9}
+.tile:hover{filter:brightness(1.08)}
+.tile.t-call{background:var(--c-call)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:20px}
+.box h3{font-size:1.1rem;margin-bottom:6px}
+.box p{margin:6px 0}
+.glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:18px}
+.g{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.g .k{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.g .v{margin-top:2px}
+.hero{border-radius:16px;padding:22px 18px;color:#fff;margin-top:4px}
+.hero h1{font-size:clamp(1.8rem,5vw,2.4rem)}
+.hero p{margin:8px 0 0;max-width:60ch;opacity:.95}
+.list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.acc{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.acc>button{width:100%;display:flex;gap:12px;align-items:center;text-align:left;background:none;border:0;padding:14px 16px;min-height:60px}
+.acc>button .t{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:1.12rem;line-height:1.2}
+.acc>button .s{display:block;font-family:var(--body);font-weight:400;font-size:.88rem;color:var(--muted);margin-top:2px}
+.chev{flex:none;width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+.acc[data-open="1"] .chev{transform:rotate(-135deg)}
+.badge{flex:none;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;border:1.5px solid currentColor;white-space:nowrap}
+.b-good{color:var(--good)}.b-mid{color:var(--mid)}.b-bad{color:var(--bad)}.b-none{color:var(--muted)}
+.body{padding:2px 16px 16px;border-top:1px solid var(--line)}
+.body[hidden]{display:none}
+.rows{display:grid;grid-template-columns:minmax(110px,170px) 1fr;gap:0;margin:12px 0 0}
+.rows dt{font-weight:600;color:var(--muted);font-size:.9rem;padding:8px 12px 8px 0;border-top:1px solid var(--line)}
+.rows dd{margin:0;padding:8px 0;border-top:1px solid var(--line)}
+.rows dt:first-of-type,.rows dd:first-of-type{border-top:0}
+@media(max-width:520px){.rows{grid-template-columns:1fr}.rows dt{padding-bottom:0;border-top:1px solid var(--line)}.rows dd{border-top:0;padding-top:2px}}
+.sec h4{font-family:var(--display);font-size:1rem;margin:16px 0 4px}
+.sec ul,.sec ol{margin:4px 0;padding-left:1.3rem}
+.sec li{margin:3px 0}
+.tw{overflow-x:auto;margin:6px 0}
+table{border-collapse:collapse;min-width:100%;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--surface2)}
+.note{background:var(--surface2);border-radius:8px;padding:9px 12px;margin:10px 0;font-size:.93rem}
+.todo{background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;padding:9px 12px;margin:10px 0;font-size:.95rem}
+.call{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:8px 0}
+.num{font-weight:700;font-variant-numeric:tabular-nums;font-size:1.05rem}
+.copy{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:6px 12px;font-size:.88rem;min-height:36px}
+.links{margin-top:14px}
+.links h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px;font-family:var(--body)}
+.links ul{list-style:none;margin:0;padding:0}
+.links li{margin:2px 0}
+.links a{display:inline-block;padding:4px 0;overflow-wrap:anywhere}
+.chk{list-style:none;padding:0;margin:6px 0}
+.chk li{margin:0}
+.chk label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;cursor:pointer}
+.chk input{width:20px;height:20px;margin-top:2px;flex:none}
+.foot{margin-top:28px;color:var(--muted);font-size:.88rem}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:8px 0}
+.mini>div{background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:.93rem}
+.mini b{display:block}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body><div class="wrap" id="app"></div>
+<script>
+const U=["https://www.dbb.de/fileadmin/user_upload/globale_elemente/pdfs/2026/Besoldungstabellen/260629_Besoldung_Berlin_2026_April.pdf", "https://110prozent.berlin.de/diensthundfuehrereinheit/", "https://testhelden.com/hundefuehrer-bei-der-polizei-wie-werde-ich-diensthundefuehrer/", "https://www.zoll.de/SharedDocs/Downloads/DE/Publikation/Broschuere_Bestandteile/Beruf-Karriere/du_im_team_fuer_mehr_gerechtigkeit_in_deutschland_7.pdf?__blob=publicationFile&v=4", "https://www.zoll-ausbildung.de/karriere-beim-zoll/zoll-abc/hundefuehrer", "https://www.wir-sind-mueritzer.de/allgemein/jahresbilanz-des-hauptzollamtes-stralsund/", "https://www.karriereportal-stellen.berlin.de/Amtlicher-TierarztAmtliche-Tieraerztin-in-der-Veterinaer-u-de-j66488.html?pdf=de", "https://www.vetmed.fu-berlin.de/en/studium/studieninteressierte/zulassung-veterinaermedizin", "https://www.fu-berlin.de/en/studium/studienangebot/grundstaendige/veterinaermedizin_stex/index.html", "https://www.ulmato.de/ausbildung/tierarzt-tieraerztin", "https://karriereportal-stellen.berlin.de/LAUFBAHNAUSBILDUNG-LEBENSMITTELKONTROLLOBERSEKRETaeR-ANWae-de-j61908.html?pdf=de", "https://www.karriereportal-stellen.berlin.de/Lebensmittelkontrollamtsinspektorin-bzw-Lebensmittelkontro-de-j66508.html?pdf=de", "https://www.berlin.de/lageso/gesundheit/berufe-im-gesundheitswesen/ausbildung-im-inland/lebensmittelkontrolleur-in/", "https://vdz-zoos.org/fileadmin/Stellenanzeigen/2025/20250630_Zoo_Berlin_Tierpflege.pdf", "https://www.kommunalforum.de/was_verdient_ein_tierpfleger_im_oeffentlichen_dienst.php", "https://www.dbb.de/fileadmin/user_upload/globale_elemente/pdfs/2026/Einkommensrunde_TV-L/Entgelttabellen_final/2_Entgelttabelle_TV-L_Anlage_B_Allgemeiner_Teil_April_2026_bis_Februar_2027.pdf", "https://www.hs-nb.de/storages/hs-neubrandenburg/Hochschule/PDF/Flyer/Agrarwirtschaft__dual_.pdf", "https://www.karriereportal-stellen.berlin.de/Landeskriminalamt-S-101006-de-j63611.html?pdf=de", "https://www.bka.de/DE/DasBKA/OrganisationAufbau/Fachabteilungen/Sicherungsgruppe/sicherungsgruppe_node.html", "https://www.berlin.de/karriereportal/", "https://110prozent.berlin.de/schlagworte/gehobener-dienst/", "https://www.hwr-berlin.de/studium/studiengang/detail/57-gehobener-polizeivollzugsdienst", "https://www.parlament-berlin.de/ados/17/IIIPlen/vorgang/verordnungen/vo17-075.pdf", "https://www.gehaltsvergleich.com/gehalt/Personenschuetzer-Personenschuetzerin", "https://www.gehaltsvergleich.com/gehalt/Personenschuetzer-Personenschuetzerin/Mecklenburg-Vorpommern", "https://www.ihk.de/wiesbaden/recht/rechtsberatung/erlaubnisse-fuer-gewerbetaetigkeiten/bewachungsgewerbe-1255484", "https://www.ihk.de/aachen/recht/rechtsinformationen/aktuelle-dokumente-zum-thema-recht/bewachungsgewerbe-34-a-gewerbeordnung-gewo-607442", "https://www.ihk.de/rhein-neckar/wirtschaftsstandort/branchen/dienstleistungen/bewach/befreiung-sachkundepruefung-4193776", "https://www.ihk.de/rheinhessen/aus-und-weiterbildung/sach-und-fachkundepruefungen/befreiungsmoeglichkeiten-bewachungsgewerbe-3762546", "https://www.ausbildung.de/berufe/personenschuetzer", "https://www.vfb-weiterbildung.de/gesamtes-kursangebot/kurs/fachkraft-fuer-personenschutz-ihk/", "https://www.gesetze-im-internet.de/waffg_2002/__28.html", "https://lk-mecklenburgische-seenplatte.de/B%C3%BCrgerinfo/Mitarbeiterinnen-und-Mitarbeiter/Waffenschein-f%C3%BCr-Bewachungsunternehmer-und-ihr-Bewachungspersonal-beantragen.php?object=tx,2761.2.1&ModID=10&FID=2761.3648.1&NavID=2037.41&La=1&ort=2761.21", "https://www.waffensammelpass.de/waffensachkundepruefung", "https://umwelt-online.de/recht/arbeitss/arbeitsrecht/laender/bln/lbg2.htm", "https://www.gehaltsvergleich.com/gehalt/Personenschuetzer-Personenschuetzerin/Berlin", "https://www.stepstone.de/jobs/personenschutz/in-berlin", "https://karriereportal-stellen.berlin.de/Versetzungs-und-Initiativbewerbende-BMOBMHBM-mwd-de-j54750.html", "https://www.karriereportal-stellen.berlin.de/112-Classic-1222025-Ausbildung-Feuerwehrfrau-Feuerwehrmann-de-j56767.html", "https://www.karriereportal-stellen.berlin.de/112-Direkt-1512025-Ausbildung-Feuerwehrfrau-Feuerwehrmann--de-j56371.html", "https://www.personalwirtschaft.de/?p=96728", "https://www.arbeitsagentur.de/jobsuche/jobdetail/14795-67593_119721-S", "https://www.berliner-feuerwehr.de/karriere/sportpruefung/", "https://www.arbeitsagentur.de/jobsuche/jobdetail/10001-1003483142-S", "https://rathaus.rostock.de/de/ausbildung_brandmeister/350464", "https://www.greifswald.de/de/verwaltung-politik/rathaus/ausbildung-bei-der-stadt/ausbildung-zur-brandmeisterin-zum-brandmeister/", "https://www.kiel.de/de/wirtschaft_arbeit/jobs_und_ausbildung/ausbildung/brandmeister_in.php", "https://jobs.kiel.de/de/p/ausbildung/jobs/135/112-start-ausbildung-als-brandmeisteranwarterin", "https://www.luebeck.de/de/rathaus/karriereportal/bei-der-feuerwehr/brandmeister-in", "http://www.stralsund.de/stellenausschreibungen", "https://rathaus.rostock.de/de/karriere/350447", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/Ausbildung-mittlerer-Dienst/Bewerbungsverfahren-Zoll-m/bewerbungsverfahren-zoll-m_node.html", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/Studium-gehobener-Dienst/Bewerbungsverfahren-Zoll-g/bewerbungsverfahren-zoll-g_node.html", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/Kontakt/kontakt_node.html", "https://www.arbeitsagentur.de/jobsuche/jobdetail/10000-1204721478-S", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/Besoldung-Verguetung/besoldung-verguetung_node.html", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/zolldienst_node.html", "https://www.zoll-karriere.de/Karriere/Nachwuchskraefte/Karriere-beim-Zoll/Ausbildung/ausbildung_node.html", "https://www.zoll.de/DE/Karriere/Ausbildung-Studium/Zolldienst/Studium-gehobener-Dienst/studium-gehobener-dienst_node.html", "https://www.ausbildung.de/stellen/ausbildung-beamter-beamtin-zoll-mittlerer-dienst-m-w-d-bei-zoll-in-berlin-0d7fae23-96f5-4c85-8881-e98c851e578b/", "https://www.ausbildung.de/stellen/ausbildung-beamter-beamtin-zoll-mittlerer-dienst-m-w-d-bei-zoll-in-stralsund-e11977f5-5df9-4e35-93e0-f77dae2f7eb7/", "https://www.ausbildung.de/stellen/duales-studium-beamter-beamtin-zoll-gehobener-dienst-m-w-d-bei-zoll-in-stralsund-8eaf964a-17d0-49c5-8e97-70a902d956bf/", "https://www.arbeitsagentur.de/jobsuche/jobdetail/10001-1002056117-S", "https://praktischkommune.de/jobs/70822137-einsatzbeamtin-einsatzbeamter-der-zentralen-unterst%C3%BCtzungsgruppe-zoll-zuz-einsatzgruppe-zugriff-des-gehobenen-dienstes-bonn", "https://www.dpolg-bpolg.de/tauschboerse/viewtopic.php?t=17454", "https://www.dokumentation.landtag-mv.de/parldok/dokument/66819", "https://karriere-in-mv.de/stelle/8057/bewerben", "https://www.bdk.de/der-bdk/was-wir-tun/aktuelles/immer-wieder-tauschpartner-gesucht"];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function fmt(s){
+  s=esc(s);
+  s=s.replace(/\[\[(\d+)\|([^\]]+)\]\]/g,(m,i,t)=>'<a href="'+U[+i].replace(/&/g,'&amp;')+'" target="_blank" rel="noopener">'+t+'</a>');
+  s=s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  return s;
+}
+const T=[
+{id:'tiere',title:'Tiere',color:'--c-tiere',sub:'Diensthund, Zollhund, Tierarzt und mehr',
+ hero:'Acht Wege, mit Tieren zu arbeiten. Nur die Diensthundführerin bei der Polizei Berlin braucht keine neue Ausbildung.',
+ glance:[['Einfachster Weg','Diensthundführerin, Polizei Berlin'],['Gehalt dort','bleibt A 8: 3.177 bis 4.050 € brutto'],['Dauer','ca. 6 Monate Zusatzausbildung']],
+ items:[
+ {t:'Diensthundführerin, Polizei Berlin',s:'Verwendungswechsel, du bleibst Beamtin',fit:['good','Passt: keine neue Ausbildung'],
+  rows:[['Verdienst','Dein Grundgehalt bleibt A 8: **3.177 bis 4.050 € brutto** je nach Stufe. Eine Zulage für Diensthundführer ist nicht geprüft.'],['Dauer','ca. 6 Monate Zusatzausbildung'],['Offen','ob eine Stelle frei ist und ob du das Auswahlverfahren bestehst']],
+  p:['Die Polizei Berlin besetzt die Diensthundführereinheit aus den eigenen Reihen. Du brauchst keine neue Ausbildung, sondern eine Verwendung dort. Ein öffentliches Bewerbungsformular wurde nicht gefunden.'],
+  sec:[{h:'Offizieller Weg laut Polizei Berlin',ol:['Ausbildung zur Polizistin (hast du).','Einsatzerfahrung sammeln (hast du, 7 Jahre).','Ca. 6 Monate Zusatzausbildung: Rechtsgrundlagen, Kynologie (z. B. Erste Hilfe am Tier), Übungen mit dem Hund, theoretische und praktische Prüfung.','Voraussetzung dafür: freie Stellen und ein bestandenes Auswahlverfahren. Außerdem solltest du sportlich und fit sein.']},
+   {h:'Zahlen',ul:['In Berlin sind derzeit 73 zertifizierte Hunde im Einsatz.','Die Einheit arbeitet im Schutzhundebereich, bei Großveranstaltungen, Festnahmen, Durchsuchungen und der Suche nach Personen.']},
+   {h:'Nicht offiziell belegt (Drittseite)',ul:['Meist werden zwei bis drei Jahre Diensterfahrung erwartet, dazu Erfahrung mit großen Hunden.','Der Hund lebt beim Führer zuhause. **Klär vorab, ob du zuhause Platz hast** ([[2|Quelle]]).']},
+   {h:'So gehst du vor',ol:['**Frag bei deiner Dienststelle und der Personalstelle**, wie die Interessenbekundung läuft und ob Stellen frei sind.','Auswahlverfahren absolvieren (Sport und Eignung, genauer Ablauf nicht veröffentlicht).','Zusatzausbildung von ca. 6 Monaten.']}],
+  links:[[1,'Polizei Berlin: Diensthundführereinheit, offizielle Seite'],[2,'Diensthundeführer allgemein (testhelden.com, keine offizielle Seite)']]},
+ {t:'Hundeführerin beim Zoll',s:'erst nach der Zollausbildung',fit:['mid','Später, mit Umweg'],
+  p:['Zollhundeführerin wirst du erst nach der Ausbildung im mittleren Zolldienst und mit Zulassung zur Fortbildung an einer der beiden Zollhundeschulen (Neuendettelsau, Bleckede). Der Zoll setzt bundesweit rund 340 Spür- und Schutzhunde ein. Eine Verwendung als Hundeführer wird bei der Bewerbung nicht garantiert.'],
+  sec:[{h:'Ostsee mit Hund',ul:['Ob das Hauptzollamt Stralsund Zollspürhunde einsetzt und wie viele, konnte nicht bestätigt werden: Die frühere Quelle zeigt nur noch eine Wartungsseite.','Zollhundeführerin wirst du dort erst nach der Zollausbildung.']}],
+  links:[[3,'Zoll: Broschüre mit Infos zum Zollhundeführer (PDF, öffnet sich bei der automatischen Prüfung nicht, auf zoll.de aber vorhanden)']]},
+ {t:'Amtstierärztin (Veterinäramt Berlin)',s:'Studium Veterinärmedizin',fit:['good','Ja, aber erst nach dem Studium'],
+  rows:[['Was du brauchst','Studium der Veterinärmedizin mit Approbation, dazu Deutsch C1'],['Dauer','Studium 5,5 Jahre'],['Verdienst','Stelle in Berlin: Entgeltgruppe E 14, Stufe 1 bis 6: **5.144 bis 7.194 € brutto**']],
+  sec:[{h:'Studium im Detail',ul:['An der FU Berlin dauert es 5 Jahre und 6 Monate inklusive Praktika und Prüfungen, Abschluss Staatsexamen.','Du brauchst eine Hochschulzugangsberechtigung. Auch mit beruflicher Qualifikation ist eine Bewerbung möglich, die Anforderungen stehen auf einer eigenen FU-Seite.','Die Plätze werden über hochschulstart.de vergeben.','Eine abgeschlossene studienrelevante Berufsausbildung bringt Punkte (bis zu 35 in der zusätzlichen Eignungsquote, bis zu 10 im Auswahlverfahren der Hochschule). Ob deine Polizeiausbildung als studienrelevant zählt, steht nirgends und müsstest du bei der FU erfragen.','Der Studienplatz ist sehr begehrt: Eine Drittseite nennt für den NC Abiturnoten zwischen 1,0 und 1,3.']}],
+  links:[[6,'Berlin: Amtliche Tierärztin, Ausschreibung (E 14)'],[7,'FU Berlin: Zulassung Veterinärmedizin'],[8,'FU Berlin: Studienangebot Veterinärmedizin'],[9,'Tierarzt: Studium und Gehalt (ulmato.de, keine amtliche Quelle)']]},
+ {t:'Tierärztin in der Praxis',s:'gleiches Studium, andere Bezahlung',fit:['mid','Teils, nur eine Quelle'],
+  rows:[['Was du brauchst','wie oben (Studium mit Approbation)'],['Verdienst','Berufseinstieg ca. 3.500 bis 3.800 €, Durchschnitt Angestellte ca. 4.650 €']],
+  p:['Zu den Tierarzt-Verdiensten in der Praxis gibt es nur eine Drittquelle.']},
+ {t:'Lebensmittelkontrolleurin (Bezirksamt Berlin)',s:'2 Jahre Ausbildung, Alter bis 35',fit:['mid','Am Rand, nur in hohen Stufen'],
+  rows:[['Was du brauchst','Fortbildungsabschluss in einem Lebensmittelberuf oder Techniker, Alter bis 35, Führerschein B'],['Dauer','2 Jahre Ausbildung (18 Monate Praxis, 6 Monate Theorie)'],['Verdienst','Ausbildung A 6; fertig A 9s (E 9a): **3.620 bis 4.616 €** (Stufe 1 bis 6 laut Tarifliste)']],
+  sec:[{h:'Wichtig',ul:['Die Berliner Ausschreibung verlangt einen Abschluss mit Fortbildungsprüfung (zum Beispiel in einem Lebensmittelberuf) oder als Techniker.','Gleichgestellt sind nur Bewerber aus dem mittleren allgemeinen Verwaltungsdienst mit mindestens 3 Jahren in der Lebensmittelaufsicht.','Deine Polizeiausbildung steht dort nicht, du müsstest also nachfragen.']}],
+  calls:[['Landesamt für Gesundheit und Soziales','030 90229-0','E-Mail: Info-Berufe@lageso.berlin.de']],
+  links:[[10,'Berlin: Laufbahnausbildung Lebensmittelkontrolle, Ausschreibung'],[11,'Berlin: Lebensmittelkontrolleurin, Ausschreibung (A 9s)'],[12,'LAGeSo Berlin: Lebensmittelkontrolleur/in']]},
+ {t:'Tierpflegerin (Zoo, Tierpark)',s:'3 Jahre Ausbildung',fit:['bad','Nein'],
+  rows:[['Was du brauchst','abgeschlossene Ausbildung zum Tierpfleger, im Zoo Fachrichtung Zootierpflege'],['Dauer','3 Jahre Ausbildung'],['Verdienst','Einstieg E 5: ca. **3.124 bis 3.783 €** (Stufe 1 bis 6, kommunaler Tarif TVöD). Zoo Berlin zahlt nach Haustarifvertrag, ohne Zahlen.']],
+  links:[[13,'Zoo Berlin: Stelle Tierpflege (VDZ)'],[14,'Tierpfleger: Gehalt im öffentlichen Dienst (kommunalforum.de, keine amtliche Quelle)'],[15,'TV-L Entgelttabelle ab April 2026 (dbb)']]},
+ {t:'Hundeführerin im Sicherheitsgewerbe (privat)',s:'Beamtenverhältnis fällt weg',fit:['bad','Nein'],
+  rows:[['Was du brauchst','meist Sachkunde §34a, Hundeführerschein'],['Dauer','nicht geprüft'],['Verdienst','Stellentitel in Berlin und Umgebung nennen 16,80 bis 19,32 € pro Stunde, bei Vollzeit grob **2.900 bis 3.350 €** (eigene Rechnung mit 40 Wochenstunden)']]},
+ {t:'Duales Studium mit Tierbezug: Agrarwirtschaft',s:'Hochschule Neubrandenburg',fit:['none','Gehalt danach offen'],
+  p:['Direkt mit Tieren gibt es kaum duale Wege. Das einzige gefundene Beispiel ist Agrarwirtschaft dual an der Hochschule Neubrandenburg (Mecklenburg-Vorpommern): Bachelor of Science plus Berufsabschluss Landwirt/in, 9 Semester, mit Ausbildungsvertrag und Ausbildungsvergütung.','Voraussetzung sind Hochschulreife und ein Ausbildungsbetrieb in MV, Brandenburg oder Sachsen-Anhalt. Bewerbung bis 31.07. Tierhaltung ist dort nur ein Teil des Fachs. Das Gehalt danach ist nicht geprüft, ob es dein Ziel erreicht, ist offen.'],
+  links:[[16,'Hochschule Neubrandenburg: Agrarwirtschaft dual (Flyer)']]},
+ ],
+ after:[{h:'Was die Zahlen zeigen',p:'Nur der Weg über das Tiermedizin-Studium zur Amtstierärztin liegt klar über deinem Ziel. Er ist aber lang und verlangt eine Hochschulzugangsberechtigung. Lebensmittelkontrolleurin liegt in den hohen Stufen über deiner heutigen Besoldung (A 8: 3.177 bis 4.050 €), verlangt aber eine neue Ausbildung und eine Qualifikation, die du vermutlich nicht hast. Tierpflegerin und Hundeführerin im Sicherheitsgewerbe liegen unter oder um dein jetziges Niveau. Diensthundführerin ist der einzige Tierweg, bei dem dein Gehalt gleich bleibt oder steigt.'},
+  {h:'Ostsee',p:'Tierärzte, Veterinärämter und Zoos an der Ostsee (zum Beispiel Rostock, Stralsund, Kiel) sind noch nicht recherchiert. Die Gehaltszahlen gelten für Berlin beziehungsweise für den kommunalen Tarif, nicht für MV oder Schleswig-Holstein.'},
+  {h:'Nicht geprüft',p:'Tierheilpraktiker und Tierphysiotherapie (meist selbstständig, Einkommen stark schwankend), Hundetrainer (Erlaubnis nach §11 Tierschutzgesetz), Förster und Ranger, Fischerei.'}]},
+
+{id:'schutz',title:'Personenschutz',color:'--c-schutz',sub:'staatlich (Polizei, BKA) oder privat',
+ hero:'Staatlicher Personenschutz verlangt den gehobenen Dienst. Privater Personenschutz ist formal leicht, bezahlt aber deutlich unter deinem Ziel.',
+ glance:[['Staatlich, LKA 61','A 12: 4.331 bis 5.856 € brutto'],['Voraussetzung','gehobener Dienst (Studium)'],['Privat, Berlin im Schnitt','2.562 € brutto']],
+ items:[
+ {t:'Staatlich: Polizei Berlin, LKA 61',s:'A 12, gehobener Dienst',fit:['mid','Erst nach dem Aufstieg'],
+  rows:[['Verdienst','A 12: **4.331 bis 5.856 € brutto**'],['Voraussetzung','laufbahnrechtliche Voraussetzungen des gehobenen Polizeivollzugsdienstes, bestandenes Personenschutz-Auswahlverfahren, Personenschutz-Basislehrgang'],['Dazu','erhöhte körperliche, psychische und einsatztaktische Leistungsfähigkeit']],
+  p:['Als Polizeiobermeisterin (mittlerer Dienst) bist du dafür formal noch nicht qualifiziert. Der erste Schritt ist der Aufstieg in den gehobenen Dienst. Was die Behörde dafür heute verlangt, ist offen und muss bei der Personalstelle erfragt werden.'],
+  sec:[{h:'Der Aufstieg in den gehobenen Dienst in Berlin',ul:['Die Polizei Berlin schreibt: Wer im mittleren Dienst eingestellt ist, kann nicht mehr extern in den gehobenen Dienst. Es gelten nur die behördeninternen Aufstiegsverfahren.','Beamtinnen und Beamte des mittleren Dienstes, die ihre Dienstbehörde zum Einführungsdienst in den gehobenen Polizeivollzugsdienst zulässt, absolvieren den Studiengang an der HWR Berlin und erwerben so die Laufbahnbefähigung.','Welche Voraussetzungen die Dienstbehörde heute für die Zulassung verlangt, steht nicht auf der Webseite. Ältere Berliner Verordnungen nannten für Polizeiobermeister (A 8) unter anderem mindestens vier Jahre im Amt und gute dienstliche Leistungen. Ob das noch gilt, klärt die Personalstelle.']},
+   {h:'So gehst du vor',ol:['**Frag bei der Personalstelle nach dem aktuellen Aufstiegsverfahren:** Voraussetzungen, Termine, Bewerbung, dienstliche Beurteilung.','Beobachte die Ausschreibungen von LKA 61 im [[19|Berliner Karriereportal]].','Absolviere Personenschutz-Auswahlverfahren und Basislehrgang, sobald eine Stelle offen ist.']}],
+  links:[[17,'LKA 61: Anforderungsprofil Personenschutz (PDF)'],[20,'Polizei Berlin: Studium und Aufstieg im gehobenen Dienst'],[21,'HWR Berlin: Studiengang Gehobener Polizeivollzugsdienst'],[19,'Berliner Karriereportal: Stellenausschreibungen'],[22,'Ältere Berliner Laufbahnverordnung, nur zur Orientierung (PDF)']]},
+ {t:'Staatlich: BKA, Sicherungsgruppe',s:'gehobener Dienst plus Spezialausbildung',fit:['mid','Erst nach dem Aufstieg'],
+  p:['Für den Personenschutz brauchst du die Ausbildung für den gehobenen Polizeivollzugsdienst und danach eine mehrmonatige Spezialausbildung im BKA, dazu kontinuierliches Training in Selbstverteidigung und Schießen.','Die Einheit „Auslands- und Spezialeinsätze“ nimmt laut Wikipedia Polizeibeamte aus BKA, Bund und Ländern ins Auswahlverfahren. Das ist keine offizielle Quelle.'],
+  links:[[18,'BKA: Abteilung Sicherungsgruppe']]},
+ {t:'Privat: Bewachungsgewerbe (§34a GewO)',s:'Gehalt, Befreiung, Lehrgang',fit:['bad','Gehalt weit unter 3.000 € netto'],
+  p:['Der Einstieg wäre für dich formal leicht, das Gehalt liegt in Berlin und an der Ostsee aber deutlich unter deinem Ziel von 3.000 € netto. Beamtenstatus entfällt.'],
+  sec:[{h:'Gehalt brutto pro Monat (Stepstone-Daten)',table:{head:['Region','unteres Viertel','Durchschnitt','oberes Viertel'],rows:[['Deutschland','2.152 €','2.845 €','3.887 €'],['Berlin','2.018 €','2.562 €','3.316 €'],['Schleswig-Holstein','1.875 €','2.408 €','2.893 €'],['Mecklenburg-Vorpommern','1.809 €','2.054 €','2.815 €']]},
+    p:'In Rostock liegt der Durchschnitt laut derselben Quelle bei 2.073 € brutto. Die Stepstone-Seite für Berlin nennt dagegen im Schnitt 41.100 € im Jahr (Spanne 32.600 bis 48.700 €), also mehr. Die Stichprobe dort ist klein, die Quellen widersprechen sich. Netto bleibt weniger.'},
+   {h:'Was rechtlich nötig ist',ul:['Je nach Tätigkeit verlangt die IHK entweder die 40-stündige Unterrichtung oder die Sachkundeprüfung nach §34a GewO. Für angestellte Personenschützer reicht laut IHK Aachen die Unterrichtung.','**Befreiung für dich:** Laut mehreren IHKs sind Personen mit einer Laufbahnprüfung zumindest für den mittleren Polizeidienst von Unterrichtung und Sachkundeprüfung befreit. Die Gemeinde als Erlaubnisbehörde entscheidet, ob die Befreiung für die konkrete Tätigkeit gilt. Die IHK stellt dafür keine Bescheinigung aus.','Das Mindestalter für Wachpersonal ist 18 Jahre. Ein Führungszeugnis ohne relevante Einträge nennen nur Drittseiten.','Wer sich selbstständig macht, braucht eine eigene Erlaubnis nach §34a und muss die Sachkundeprüfung ablegen oder eine gleichgestellte Qualifikation nachweisen.']},
+   {h:'Weiterbildung',ul:['Einen staatlich anerkannten Ausbildungsberuf zum Personenschützer gibt es nicht.','Üblich sind Zertifikatslehrgänge wie „Fachkraft für Personenschutz (IHK)“, 4 bis 6 Wochen, unvergütet.','Der Beispiel-Lehrgang kostet 6.000 € (Mindestalter 25, Kleiner Waffenschein Pflicht, Unterrichtung nach §34a und Waffensachkunde oder polizeilicher Hintergrund vorteilhaft). Termine in Ludwigsburg bei Stuttgart: 12.04. bis 02.06.2027 und 20.09. bis 10.11.2027.']},
+   {h:'Bewaffneter Personenschutz',ul:['Waffen führen darf nur, wer über den Bewachungsunternehmer benannt wird, und nur bei einem konkreten Auftrag für eine gefährdete Person (§ 19 WaffG) oder ein gefährdetes Objekt (§ 28 WaffG).','Die Wachperson muss mindestens 18, zuverlässig, persönlich geeignet und sachkundig nach § 7 WaffG sein.','Die Sachkunde kann auch durch eine behördliche oder staatlich anerkannte Ausbildung mit Bescheinigung gelten, wenn diese dafür geeignet war (§ 3 AWaffV).','Ob die Waffenbehörde deine Polizeiausbildung so anerkennt, steht in keiner Quelle: **bei der Waffenbehörde nachfragen.**']},
+   {h:'Beamtenrecht',ul:['Solange du Beamtin bist, braucht jede entgeltliche Nebentätigkeit die vorherige Genehmigung. Sie wird versagt, wenn zu besorgen ist, dass dienstliche Interessen beeinträchtigt werden (§ 62 Landesbeamtengesetz Berlin).','Ein hauptberuflicher Wechsel in die Privatwirtschaft bedeutet, das Beamtenverhältnis zu verlassen.','Die Genehmigung ist auf höchstens zwei Jahre befristet. Als Versagungsgrund gilt in der Regel eine Nebentätigkeit von mehr als einem Fünftel der Wochenarbeitszeit oder eine, die wie ein Zweitberuf wirkt.','Die Folgen für Versorgung und Rente wurden nicht recherchiert.']},
+   {h:'So gehst du vor',ol:['**Frag bei der zuständigen Erlaubnisbehörde (Ordnungsamt oder Gewerbeamt) nach**, ob deine Laufbahnprüfung als Befreiung anerkannt wird.','Wähle einen Personenschutz-Lehrgang mit IHK-Zertifikat aus.','Suche Stellen bei Bewachungsunternehmen. Auf Stepstone gab es am 22.11.2026 für Personenschutz in Berlin nur 2 Treffer, beide keine Personenschutz-Stellen (Ingenieur Hochspannung, Bürokraft). An der Ostsee ist das Angebot nach den Gehaltsdaten kleiner und niedriger bezahlt.']}],
+  links:[[27,'IHK Rhein-Neckar: Befreiung von Unterrichtung und Sachkundeprüfung'],[28,'IHK Rheinhessen: Befreiungsmöglichkeiten Bewachungsgewerbe'],[25,'IHK Wiesbaden: Bewachungsgewerbe, alles Wichtige'],[26,'IHK Aachen: Unterrichtung oder Sachkundeprüfung?'],[29,'Personenschützer: Ausbildung und Gehalt (ausbildung.de)'],[30,'Beispiel: Fachkraft für Personenschutz (IHK)'],[23,'Gehalt Personenschützer bundesweit'],[35,'Gehalt Personenschützer in Berlin'],[24,'Gehalt Personenschützer in Mecklenburg-Vorpommern'],[36,'Stellen Personenschutz in Berlin (Stepstone)'],[31,'§ 28 WaffG (gesetze-im-internet.de)'],[33,'§ 3 AWaffV (Gesetzestext)'],[32,'Landkreis Mecklenburgische Seenplatte: Waffenschein für Bewachungspersonal'],[34,'Landesbeamtengesetz Berlin: Nebentätigkeit']]}
+ ],after:[]},
+
+{id:'feuer',title:'Feuerwehr',color:'--c-feuer',sub:'Berlin und fünf Städte an der Ostsee',
+ hero:'Es gibt keinen Direktwechsel von der Polizei zur Feuerwehr. Du müsstest die Brandmeister-Ausbildung neu machen.',
+ glance:[['In der Ausbildung','rund 1.470 bis 1.560 € brutto'],['Danach in Berlin','A 7 ab 3.021 € oder A 8 bis 4.050 € brutto'],['Offen','ob deine Polizeiausbildung als Berufsausbildung zählt']],
+ items:[
+ {t:'Was heißt 112 Classic, Direkt und Dual?',s:'die drei Wege der Berliner Feuerwehr',fit:null,
+  p:['112 ist die Notrufnummer. Die Berliner Feuerwehr nutzt die drei Namen für ihre drei Wege in den Beruf:'],
+  sec:[{h:'',ul:['**112 Classic:** der traditionelle Zugang zum mittleren feuerwehrtechnischen Dienst. Du brauchst vorher eine abgeschlossene Berufsausbildung (so steht es in der Ausschreibung). Für dich der naheliegende Weg, falls deine Polizeiausbildung gilt.','**112 Direkt:** der Zugang zum mittleren feuerwehrtechnischen Dienst direkt nach der Schule, ohne vorherige Berufsausbildung. Für dich vermutlich nicht nötig.','**112 Dual:** ein duales Studium für den gehobenen feuerwehrtechnischen Dienst.']}],
+  note:'Die Erklärungen zu Classic und Direkt stammen wörtlich aus den Ausschreibungen ([[38|112 Classic]], [[39|112 Direkt]]). Die Einordnung von 112 Dual stammt aus einem Fachartikel von 2021 ([[40|Personalwirtschaft]]).'},
+ {t:'112 Classic und 112 Direkt, Berlin',s:'mittlerer Dienst, Zahlen aus der Runde 2025/26',fit:['mid','Frag nach, ob deine Ausbildung zählt'],
+  sec:[{h:'Vergleich',table:{head:['','112 Classic','112 Direkt'],rows:[['Für wen','Hauptschulabschluss plus abgeschlossene Ausbildung in einem anerkannten Ausbildungsberuf (oder technische Fachschule, Fachoberschule)','mittlerer Schulabschluss oder Abitur, noch keine abgeschlossene Ausbildung'],['Alter bei Beginn','18 bis 35 Jahre','16,5 bis 35 Jahre'],['Anwärterbezüge','in der Ausschreibung nicht genannt','1.467,66 € brutto, dazu Feuerwehrzulage 76,66 € ab dem 2. Jahr und Hauptstadtzulage 50 €'],['Dauer','in der Ausschreibung nicht genannt','3 Jahre'],['Frist der letzten Runde','30.06.2025','30.09.2025 (Start 01.05.2026)']]},
+    p:'Gemeinsam: Größe 165 bis 195 cm, Schwimmabzeichen Silber (nicht älter als 2 Jahre), Führerschein Klasse B, Sporttest Fitnesslevel 2, einwandfreies Führungszeugnis, Feuerwehrdiensttauglichkeit.'},
+   {h:'Neuere Ausschreibungen',ul:['Im Karriereportal stehen bereits neuere Runden.','112 Direkt 15_1/2026: Frist laut Drittseite 27.09.2026.','112 Classic 12_3/2026: laut Drittseite (praktischkommune.de) Frist 27.09.2026 (abgelaufen), Dauer 18 Monate, Anwärterbezüge 1.527,66 € plus Anwärtersonderzuschlag 880,60 €. Die Originalausschreibung ließ sich nicht öffnen, diese Zahlen sind deshalb nicht bestätigt.','Die Berliner Karriereportal-Seite nennt allgemein „mindestens 1.368 Euro (brutto)“ als Bezüge.']},
+   {h:'Bewerbung bei der Berliner Feuerwehr',ol:['Öffne die Ausschreibung im Berliner Karriereportal und klick unten rechts auf „Jetzt bewerben“. Bewerbungen laufen ausschließlich online.','**Lade als PDF hoch** (max. 15 MB je Datei): Motivationsschreiben, Lebenslauf, Zeugnis des höchsten Schulabschlusses, Prüfungszeugnis der Ausbildung mit Note, Personalausweis (beidseitig), Führerschein B (beidseitig), Schwimmabzeichen Silber (kann nachgereicht werden), Punkteauszug aus Flensburg (nicht älter als 3 Monate, auch bei null Punkten). Unvollständige Bewerbungen werden nicht berücksichtigt.','Melde dich zum Sporttest Fitnesslevel 2 an. Nach Eingang der Bewerbung lädt die Feuerwehr zu den monatlichen Sportprüfungen ein, sie finden an zwei Tagen in der Monatsmitte statt.','Ein Online-Test folgt kurz nach Fristende (so bei 112 Direkt beschrieben). Danach Auswahlverfahren und Einstellungsuntersuchung.','In der Bewerbungsphase wird nur per E-Mail kommuniziert, **prüf auch den Spam-Ordner**.']}],
+  todo:'**Ruf an und frag:** Zählt deine Polizeiausbildung als abgeschlossene Ausbildung für 112 Classic, und wann ist die nächste Frist?',
+  calls:[['Bewerbungshotline der Berliner Feuerwehr','030 / 387 30 66 88','steht in den Ausschreibungen 112 Classic und 112 Direkt, am 24.11.2026 geprüft. Erreichbarkeitszeiten nennen sie nicht.']],
+  links:[[38,'Berlin: Ausschreibung 112 Classic'],[39,'Berlin: Ausschreibung 112 Direkt'],[19,'Berlin: Karriereportal mit allen Stellen'],[37,'Berlin: Versetzungsausschreibung, nur für Feuerwehrbeamte']]},
+ {t:'112 Dual: Studium bei der Berliner Feuerwehr',s:'gehobener Dienst, Frist 25.11.2026',fit:['mid','Hängt am Schulabschluss'],
+  rows:[['Voraussetzung','Fachhochschulreife, dazu Sporttest Fitnesslevel 2. Weitere Einstellungsvoraussetzungen stehen im Karriereportal.'],['Studium','7 Semester, Bachelor „Brandschutz und Sicherheitstechnik“ (Vertiefung Brandschutz) an der Berliner Hochschule für Technik, praktische Teile an der Feuerwehr- und Rettungsdienst-Akademie. Danach 3 Jahre Probezeit.'],['Abschluss','Bachelor of Engineering und Laufbahnbefähigung für den gehobenen feuerwehrtechnischen Dienst'],['Bezüge','Anwärterbezüge **1.527,45 € brutto** (Stand 06/2026), dazu 50 € Hauptstadtzulage oder Zuschuss zum ÖPNV-Ticket und ca. 85 € Feuerwehrzulage ab dem 2. Jahr'],['Frist','**25.11.2026** (laut Arbeitsagentur), Studienbeginn **01.10.2027**']],
+  p:['Die Angaben stammen von der Stellenseite der Arbeitsagentur. Die Originalausschreibung im Karriereportal ließ sich nicht öffnen, deshalb ist alles hier noch nicht gegen das Original geprüft.'],
+  todo:'**Offen:** Ob du die Fachhochschulreife hast (dein Schulabschluss ist noch nicht bekannt), und ob dein Dienstverhältnis bei der Polizei ein Hindernis ist (zum Beispiel Entlassung auf eigenen Antrag). Je nach Schulabschluss lohnt sich ein Anruf heute oder morgen früh bei der Bewerbungshotline. Sonst zählt die nächste Runde.',
+  calls:[['Bewerbungshotline Berliner Feuerwehr','030 / 387 30 66 88','Erreichbarkeit unbekannt']],
+  links:[[41,'Arbeitsagentur: 112 Dual']]},
+ {t:'Feuerwehr an der Ostsee',s:'Stralsund, Rostock, Greifswald, Kiel, Lübeck',fit:['mid','Nachfragen, was zählt'],
+  p:['Alle fünf Städte stellen Beamtenanwärter im mittleren Dienst ein. In Mecklenburg-Vorpommern (Stralsund, Rostock, Greifswald) ist die Spezialausbildung oder öffentlich-rechtliche Ausbildung der Hebel für dich. Ob eine Polizeiausbildung dort anerkannt wird, entscheidet die Stadt. In Kiel und Lübeck sind Polizeiausbildungen in der Aufzählung nicht genannt, hier musst du nachfragen.'],
+  city:[
+   {n:'Stralsund',a:'Mittlere Reife, oder Berufsreife plus Berufsausbildung oder öffentlich-rechtliche Ausbildung; dazu feuerwehrgeeignete Gesellen- oder Abschlussprüfung oder Spezialausbildung',h:'Höchstalter 34',d:'18 Monate, 1.478,54 € brutto',s:'Start 01.10.2027, Frist 31.10.2026 abgelaufen',l:43},
+   {n:'Rostock',a:'feuerwehrgeeignete Gesellenprüfung, Abschlussprüfung, Notfallsanitäter-Prüfung oder abgeschlossene Spezialausbildung; die oberste Dienstbehörde entscheidet über die Anerkennung',h:'Höchstalter 34',d:'18 Monate, Starts im April und Oktober',s:'Frist auf der Seite nicht genannt',l:44},
+   {n:'Greifswald',a:'Mittlere Reife oder Berufsreife unter Voraussetzungen; Gesellenprüfung, Abschlussprüfung oder Spezialausbildung',h:'Höchstalter 34',d:'18 Monate, Schwimmabzeichen Bronze',s:'Zeitraum für Start 1.10.2026 begann am 1. August 2025; Ausschreibung für 2027 nicht gesehen, Bewerbung über greifswald.de/stellenangebote. Die Seite ließ sich bei der letzten Prüfung nicht öffnen.',l:null},
+   {n:'Kiel',a:'erster allgemeinbildender Schulabschluss plus feuerwehrgeeignete Berufsausbildung oder Spezialausbildung (Notfallsanitäter, Rettungsassistent, Pflegeberuf); Schwimmabzeichen Silber; Erste-Hilfe-Kurs',h:'Höchstalter: keine Angabe auf der Seite',d:'Laut Ausschreibung Anwärtergrundbetrag 1.467,18 € plus Anwärtersonderzuschlag 1.467,18 € (rechnerisch rund 2.934 € brutto, bei Kiel nachfragen); Dauer auf der Seite nicht genannt',s:'Start 01.04.2028, Frist 02.05.2027',l:47},
+   {n:'Lübeck',a:'erster allgemeinbildender Schulabschluss plus feuerwehrgeeignete Berufsausbildung oder Notfallsanitäter-Ausbildung',h:'Höchstalter: keine Angabe auf der Seite',d:'1,5 Jahre, Beamtenstatus ab Tag 1',s:'Bewerbung laut Seite in der Regel ein Jahr vor Start; feste Frist nicht genannt',l:48}],
+  sec:[{h:'Stralsund: weitere Angaben',ul:['Zusätzlich verlangt Stralsund Führerschein B und das Schwimmabzeichen Bronze.','Für schwerbehinderte Menschen gilt Höchstalter 37.','Bewerbung in Stralsund online über Interamt. Die Stellenseite der Stadt ließ sich nicht öffnen, die Ausschreibung steht in der Linkliste.']}],
+  calls:[['Hansestadt Stralsund, Herr Wendtland','03831 252 430','cwendtland@stralsund.de (laut Ausschreibung, am 24.11.2026 erneut geprüft)'],['Feuerwehr Rostock, Sachgebiet Personal und Dienstrecht','0381 / 381-3986','alternativ -3987 oder -3988']],
+  links:[[43,'Stralsund: Ausschreibung Brandmeister 2027'],[44,'Rostock: Ausbildung Brandmeister, offizielle Seite'],[50,'Rostock: Karriere bei der Berufsfeuerwehr'],[46,'Kiel: Ausbildung Brandmeisteranwärter'],[47,'Kiel: Ausschreibung Start 2028'],[48,'Lübeck: Ausbildung Brandmeister']]}
+ ],after:[]},
+
+{id:'zoll',title:'Zoll',color:'--c-zoll',sub:'mittlerer Dienst, duales Studium, Wasserzoll',
+ hero:'Beim Zoll gibt es keinen belegten Sonderweg für Polizeibeamte. Du bewirbst dich regulär, und nur der Zoll passt in deine Grenze von 1.800 bis 2.000 € in der Ausbildung.',
+ glance:[['Mittlerer Dienst','2 Jahre, 1.560,06 € brutto'],['Gehobener Dienst (Studium)','3 Jahre, 1.846,85 € brutto'],['Nächste Frist','15.04.2027 (Studium), 15.10.2027 (mittlerer Dienst)']],
+ items:[
+ {t:'Mittlerer oder gehobener Dienst: der Vergleich',s:'was die beiden Wege unterscheidet',fit:null,
+  sec:[{h:'',table:{head:['','Mittlerer Dienst','Gehobener Dienst (duales Studium)'],rows:[['Dauer','2 Jahre','3 Jahre, Abschluss LL.B.'],['Schulabschluss','Realschule, oder Hauptschule plus mind. 2-jährige Berufsausbildung','Fachhochschulreife oder Abitur'],['Anwärterbezüge brutto','1.560,06 €','1.846,85 €'],['Besoldung danach','A 7 bis A 9','Einstieg A 9'],['Höchstalter','49 Jahre','nicht geprüft'],['Sport','Sportabzeichen Bronze, nicht älter als 1 Jahr, vorlegen bis 15. Juni des Einstellungsjahres','laut zoll.de nur bei der Wasserzoll-Bewerbung genannt: Sportabzeichen Bronze bis 15. Dezember des Vorjahres (Start 1. März) bzw. 15. Juni (Start 1. September)'],['Auswahlverfahren','schriftlicher Test, mündliche Runde','schriftlicher Test, mündliche Runde']]},
+    p:'Quellen zur Tabelle: Anwärterbezüge laut zoll.de (vorläufig, ohne Gewähr). Eine Stellenanzeige nennt für den gehobenen Dienst ca. 1.744 €. Besoldungsgruppen laut Drittseiten. Altersgrenze 49 (mittlerer Dienst) und Sport laut zoll-karriere.de. Unterlagen laut zoll.de und Ausschreibung des Hauptzollamts Köln. Die Endgehälter des Bundes sind nicht geprüft.'}],
+  links:[[55,'Zoll: Besoldung und Vergütung'],[56,'Zoll: Karriereseite Zolldienst'],[57,'Zoll-Karriere: Ausbildung mittlerer Dienst (offizielle Karriereseite)'],[58,'Zoll: Studium gehobener Dienst']]},
+ {t:'Fristen: die nächsten Termine',s:'Start 2027 ist abgelaufen',fit:null,
+  p:['Die Fristen für den Start 2027 sind abgelaufen. Die nächsten laut Zoll-Webseite:'],
+  sec:[{h:'',ul:['**Mittlerer Dienst:** Bewerbung bis **15. Oktober 2027**, Einstellung am 1. September 2028. Die Online-Bewerbung ist laut zoll-karriere.de seit 04.11.2026 möglich.','**Gehobener Dienst:** Bewerbung bis **15. April 2027**, Einstellung am 1. März 2028. Laut testhelden.com (Drittseite, Stand 21.10.2026) gibt es zusätzlich eine Frist am 15. Oktober für den Start am 1. September, auf zoll.de nicht erneut geprüft.']}],
+  links:[[51,'Zoll: Bewerbungsverfahren mittlerer Dienst, mit Fristen'],[52,'Zoll: Bewerbungsverfahren gehobener Dienst, mit Fristen']]},
+ {t:'Bewerbung Schritt für Schritt',s:'laut Ausschreibung Hauptzollamt Köln',fit:null,
+  p:['Das gilt für alle Hauptzollamts-Standorte.'],
+  sec:[{h:'',ol:['Klick auf der Zoll-Seite „Kontakt Zollausbildung“ das gewünschte Hauptzollamt an (Berlin, Stralsund oder Kiel). Dort steht unter dem blauen Button „Zollausbildung / Online-Bewerbung“ der Link zur Bewerbung. Die Bewerbung kann bei jedem der 41 Hauptzollämter bundesweit laufen.','**Registriere dich einmalig** im Karriereportal der Bundesverwaltung. Danach kommt sofort eine Verifizierungsmail.','Erfasse deine persönlichen Daten dort möglichst vollständig, der Bewerbungsprozess nutzt sie.','**Lade als PDF hoch:** Bewerbungsanschreiben (kann online ausgefüllt werden), tabellarischer Lebenslauf, Schul- und Prüfungszeugnisse, Zeugnisse über Berufsausbildung oder berufliche Tätigkeiten, Sportabzeichen mindestens Bronze.','Schick keine Unterlagen per Post oder E-Mail. Der Zoll meldet sich, wenn etwas fehlt.','Auswahlverfahren: schriftlicher Test, danach mündliche Runde.']}],
+  links:[[53,'Zoll: Kontakt und Online-Bewerbung je Hauptzollamt'],[54,'Hauptzollamt Kiel: Wasserzoll, Ausbildung mittlerer Dienst'],[62,'Ausschreibung Köln mit Schritt-für-Schritt-Bewerbung'],[59,'Hauptzollamt Berlin: Ausbildung mittlerer Dienst (Anzeige für Start 2027, Frist 15.10.2026 abgelaufen)'],[60,'Hauptzollamt Stralsund: Ausbildung mittlerer Dienst'],[61,'Hauptzollamt Stralsund: duales Studium (Anzeige für Start 2027, Frist abgelaufen, nur zum Vergleich)']]},
+ {t:'Wechsel von der Polizei',s:'gibt es eine Verkürzung?',fit:['mid','Nachfragen'],
+  p:['Eine klassische Umschulung gibt es nicht. Foren berichten widersprüchlich: Ein Zoll-Berater soll gesagt haben, ein normaler Wechsel gehe nicht, weil die Qualifikation fehlt. Andere nennen einen Tausch als möglich (DPolG-Forum, keine verlässliche Quelle, der Link ist entfernt, weil die Seite sich nicht öffnen ließ).'],
+  todo:'**Frag bei der Einstellungsberatung des Hauptzollamts Berlin nach:** Zählt deine Polizeiausbildung als Berufsausbildung, und gibt es eine Verkürzung?'},
+ {t:'Ostsee und Wasserzoll',s:'Stralsund, Kiel, Zollboot',fit:['mid','Nur mit Zeugnis'],
+  p:['Ausbildungs-Hauptzollämter sind Stralsund (Mecklenburg-Vorpommern) und Kiel (Schleswig-Holstein).','Für den Wasserzoll (Zollboot oder Zollschiff) kann man sich im mittleren Dienst bei Bremen, Hamburg, Itzehoe, Kiel, Oldenburg oder Stralsund bewerben, im gehobenen Dienst bei Itzehoe oder Stralsund.','Dafür braucht man bereits bei der Bewerbung ein nautisches oder technisches Befähigungszeugnis (Nautische Wachoffizierin bis 500 BRZ, Fischerei-Befähigung oder Schiffsmaschinistin) oder eine Marine-Ausbildung als Bootsmann.'],
+  note:'Für dich heißt das: Wasserzoll ist nur mit so einem Zeugnis möglich.',
+  calls:[['Hauptzollamt Kiel, Herr Lau','0431 / 20083-1273','einstellung.hza-kiel@zoll.bund.de (laut Ausschreibung, dort geht es um den Wasserzoll)']],
+  links:[[51,'zoll.de, mittlerer Dienst'],[54,'Hauptzollamt Kiel']]},
+ {t:'Spezialeinheiten später',s:'dort sind deine Trainerbefugnis und dein Sportprofil gefragt',fit:null,
+  p:['Beim Zoll kann man in den Spezialeinheiten unter anderem Einsatztrainer/-in für Sport und Schießen werden. Voraussetzung ist die Laufbahnbefähigung des Zolls. Das Höchstalter liegt bei 35 Jahren zum Stichtag 28. Februar des Auswahljahres, die Frist der aktuellen Ausschreibung ist der 31.07.2027. Diese Angaben stammen aus einer Ausschreibung auf praktischkommune.de, die sich bei der letzten Prüfung nicht erneut öffnen ließ. Sie sind deshalb nicht erneut bestätigt.']}
+ ],after:[]},
+
+{id:'ostsee',title:'Ostsee: Polizei MV',color:'--c-ostsee',sub:'Wechsel zur Landespolizei Mecklenburg-Vorpommern',
+ hero:'Der Wechsel läuft über eine Übernahme, im Regelfall mit Tauschpartner, und kann bis zu zwölf Monate dauern. Einen Anspruch darauf hast du nicht.',
+ glance:[['Dauer','bis zu 12 Monate'],['Verdienst','Besoldung des Landes MV, nicht geprüft'],['Bewerbung','jederzeit per E-Mail']],
+ items:[
+ {t:'Übernahme zur Landespolizei MV',s:'so läuft es ab',fit:['mid','Möglich, braucht Geduld'],
+  p:['Die Berliner Zahlen gelten dort nicht, die MV-Tabelle ist nicht geprüft.'],
+  sec:[{h:'',ul:['Das Land MV übernimmt Polizeivollzugsbeamte aus anderen Ländern und dem Bund und gibt dafür im Regelfall einen eigenen Beamten an das abgebende Land ab.','**So bewirbst du dich:** Laut Karriereportal MV jederzeit per E-Mail an **Bewerbung-Lapo@im.mv-regierung.de**. Leg polizeiliches Führungszeugnis, tabellarischen Lebenslauf, Zeugnisse sowie Ausbildungs- und Tätigkeitsnachweise bei. Es folgt eine Vorauswahl nach Unterlagen und Auswahlgespräche.','**Tauschpartner:** Den suchen Polizeigewerkschaften wie der BDK für ihre Mitglieder. Eine ältere Seite des BDK schreibt, in MV sei es schwer, einen Tauschpartner zu finden, weil viele Beamte aus Nachbarländern dorthin wollen.','Ob in MV Diensthundeführer-Stellen offen sind, wurde nicht recherchiert.']}],
+  links:[[66,'Karriereportal MV: Polizeivollzugsbeamter (Übernahme)'],[65,'Landtag MV: Übernahme von Polizeivollzugsbeamten'],[67,'BDK: Tauschpartner gesucht, ältere Seite']]},
+ {t:'Weitere Wege an die Ostsee',s:'Zoll und Feuerwehr',fit:null,
+  p:['Zoll: Hauptzollamt Stralsund und Kiel. Feuerwehr: Stralsund, Rostock, Greifswald, Kiel, Lübeck. Alle Orte, Voraussetzungen und Links stehen bei den Themen Zoll und Feuerwehr.'],
+  go:[['feuer','Zur Feuerwehr'],['zoll','Zum Zoll']]}
+ ],after:[]},
+
+{id:'dual',title:'Duales Studium',color:'--c-dual',sub:'Studium und bezahlte Praxis, Weg in den gehobenen Dienst',
+ hero:'Ein duales Studium verbindet Studium und bezahlte Praxis und führt in den gehobenen Dienst. Dein Schulabschluss entscheidet, welche Wege offen sind.',
+ glance:[['Dringend','112 Dual: Frist 25.11.2026 (morgen)'],['Hängt daran','dein Schulabschluss'],['Im Polizeidienst bleiben','Aufstieg an der HWR Berlin']],
+ items:[
+ {t:'Die Wege im Überblick',s:'vier duale Wege im Dokument',fit:null,
+  sec:[{h:'',table:{head:['Weg','Abschluss und Dauer','Voraussetzung','Geld (brutto)','Nächste Frist'],rows:[['112 Dual, Berliner Feuerwehr','Bachelor of Engineering, 7 Semester, danach gehobener feuerwehrtechnischer Dienst','Fachhochschulreife, Sporttest Fitnesslevel 2','1.527,45 € (Stand 06/2026)','25.11.2026, Start 01.10.2027 (nur eine Quelle)'],['Zoll, gehobener Dienst','LL.B., 3 Jahre','Fachhochschulreife oder Abitur','1.846,85 € (zoll.de, vorläufig; eine Anzeige nennt ca. 1.744 €)','15.04.2027, Start 01.03.2028'],['Polizei Berlin, gehobener Dienst (Aufstieg)','Studium an der HWR Berlin, Laufbahnbefähigung für den gehobenen Dienst','Zulassung durch deine Dienstbehörde, Bedingungen offen','nicht geprüft','läuft intern, bei der Personalstelle erfragen'],['Agrarwirtschaft dual, Neubrandenburg','Bachelor of Science plus Landwirt/in, 9 Semester','Hochschulreife, Ausbildungsbetrieb in MV, Brandenburg oder Sachsen-Anhalt','Ausbildungsvergütung, Höhe nicht geprüft','Bewerbung bis 31.07.']]}}]},
+ {t:'Was daraus folgt',s:'vier Punkte',fit:null,
+  sec:[{h:'',ul:['Feuerwehr, Zoll und die Agrarwirtschaft verlangen eine **Hochschulreife** (bei der Feuerwehr die Fachhochschulreife). Dein Schulabschluss fehlt noch, daran hängt zuerst alles. Ob der Polizei-Aufstieg eine Hochschulreife verlangt, steht in den Quellen nicht. Darüber entscheidet deine Dienstbehörde bei der Zulassung.','Feuerwehr und Zoll heißen drei bis dreieinhalb Jahre Anwärterbezüge von rund 1.530 bis 1.850 € brutto statt deiner jetzigen Besoldung (A 8: 3.177 bis 4.050 €). Für deine Grenze von 1.800 bis 2.000 € während der Ausbildung passt nur der Zoll (zoll.de: 1.846,85 € vorläufig; eine Stellenanzeige nennt ca. 1.744 €, also knapp darunter).','Der Polizei-Aufstieg ist der Weg, bei dem du im Polizeidienst bleibst und zum Personenschutz (A 12) kommen kannst. Wie du während des Studiums bezahlt wirst, ist nicht geprüft und muss die Personalstelle sagen.','Dringend: Die Frist für 112 Dual läuft **morgen** (25.11.2026) ab. Das steht nur auf der Stellenseite der Arbeitsagentur, die Originalausschreibung im Karriereportal ließ sich nicht öffnen. Sonst zählt die nächste Runde.']}],
+  go:[['feuer','Zur Feuerwehr'],['zoll','Zum Zoll'],['schutz','Zum Personenschutz']]}
+ ],after:[]},
+
+{id:'calls',title:'Anrufe und Unterlagen',color:'--c-call',sub:'vier Anrufe klären, welche Wege offen sind',kind:'calls'}
+];
+
+const CALLS=[
+ ['Eigene Dienststelle und Personalstelle der Polizei Berlin','','Interessenbekundung Diensthundführereinheit, aktuelles Aufstiegsverfahren in den gehobenen Dienst'],
+ ['Berliner Feuerwehr, Bewerbungshotline','030 / 387 30 66 88','Zählt deine Polizeiausbildung als Berufsausbildung (112 Classic), nächste Frist'],
+ ['Hauptzollamt Berlin, Einstellungsberatung','','Anerkennung oder Verkürzung für Polizeibeamte, Termin für die nächste Bewerbungsrunde'],
+ ['Hansestadt Stralsund, Herr Wendtland','03831 252 430','Zählt deine Polizeiausbildung als öffentlich-rechtliche Ausbildung, nächste Runde']
+];
+const DOCS=['Lebenslauf, tabellarisch','Schulabschlusszeugnis und Abschlusszeugnis deiner Polizeiausbildung mit Note','Aktuelle dienstliche Beurteilung','Personalausweis und Führerschein Klasse B, beidseitig','Schwimmabzeichen Silber (nicht älter als 2 Jahre)','Deutsches Sportabzeichen Bronze (nicht älter als 1 Jahr, für den Zoll)','Auszug aus dem Fahreignungsregister Flensburg (nicht älter als 3 Monate)','Nachweis der Trainerbefugnis'];
+const MISSING=['Schulabschluss','Körpergröße (Feuerwehr Berlin: 165 bis 195 cm)','ob zuhause Platz für einen Diensthund wäre','wie deine Trainerbefugnis genau heißt und wer sie ausgestellt hat'];
+const GLOSS=[['Mittlerer und gehobener Dienst','Laufbahngruppen der Beamten. Du bist im mittleren Dienst. Für den gehobenen Dienst brauchst du ein Studium, bei der Polizei Berlin an der HWR Berlin.'],['Anwärterbezüge','Dein Gehalt während der Ausbildung als Beamtenanwärterin. Immer brutto, also vor Steuern und Abgaben.'],['Auswahlverfahren','Das Verfahren, mit dem eine Behörde Bewerberinnen auswählt, zum Beispiel mit Tests, Sport und Gesprächen.'],['§34a GewO','Das Gesetz für das Bewachungsgewerbe, also auch für privaten Personenschutz.'],['Laufbahnbefähigung','Der Nachweis, dass du für eine Beamtenlaufbahn qualifiziert bist, zum Beispiel durch Ausbildung oder Studium.']];
+
+const app=document.getElementById('app');
+const open=new Set();
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+function callHtml(c){
+  const num=c[1]?'<span class="num">'+esc(c[1])+'</span><button class="copy" data-copy="'+esc(c[1])+'">Nummer kopieren</button>':'<span class="num">Nummer: bei der Dienststelle erfragen</span>';
+  return '<div class="call"><span><b>'+esc(c[0])+'</b></span>'+num+(c[2]?'<span style="flex-basis:100%;color:var(--muted);font-size:.92rem">'+fmt(c[2])+'</span>':'')+'</div>';
+}
+function tableHtml(t){
+  return '<div class="tw"><table><thead><tr>'+t.head.map(h=>'<th>'+fmt(h)+'</th>').join('')+'</tr></thead><tbody>'+t.rows.map(r=>'<tr>'+r.map(c=>'<td>'+fmt(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+}
+function itemBody(it,tid){
+  let h='<div class="body" hidden>';
+  if(it.p)h+=it.p.map(x=>'<p>'+fmt(x)+'</p>').join('');
+  if(it.rows)h+='<dl class="rows">'+it.rows.map(r=>'<dt>'+esc(r[0])+'</dt><dd>'+fmt(r[1])+'</dd>').join('')+'</dl>';
+  if(it.city)h+='<div class="mini">'+it.city.map(c=>'<div><b>'+esc(c.n)+'</b>Ausbildung: '+fmt(c.a)+'<br>'+esc(c.h)+'<br>'+fmt(c.d)+'<br>'+fmt(c.s)+(c.l!==null?'<br><a href="'+U[c.l]+'" target="_blank" rel="noopener">Seite öffnen</a>':'')+'</div>').join('')+'</div>';
+  if(it.sec)h+=it.sec.map(s=>'<div class="sec">'+(s.h?'<h4>'+esc(s.h)+'</h4>':'')+(s.table?tableHtml(s.table):'')+(s.p?'<p>'+fmt(s.p)+'</p>':'')+(s.ul?'<ul>'+s.ul.map(x=>'<li>'+fmt(x)+'</li>').join('')+'</ul>':'')+(s.ol?'<ol>'+s.ol.map(x=>'<li>'+fmt(x)+'</li>').join('')+'</ol>':'')+'</div>').join('');
+  if(it.note)h+='<div class="note">'+fmt(it.note)+'</div>';
+  if(it.todo)h+='<div class="todo">'+fmt(it.todo)+'</div>';
+  if(it.calls)h+=it.calls.map(callHtml).join('');
+  if(it.go)h+='<p>'+it.go.map(g=>'<button class="copy" data-go="'+g[0]+'">'+esc(g[1])+'</button>').join(' ')+'</p>';
+  if(it.links)h+='<div class="links"><h4>Links zum Anklicken</h4><ul>'+it.links.map(l=>'<li><a href="'+U[l[0]].replace(/&/g,'&amp;')+'" target="_blank" rel="noopener">'+esc(l[1])+'</a></li>').join('')+'</ul></div>';
+  return h+'</div>';
+}
+function topicView(t){
+  let h='<div class="hero" style="background:var('+t.color+')"><h1>'+esc(t.title)+'</h1><p>'+fmt(t.hero)+'</p></div>';
+  h+='<div class="glance">'+t.glance.map(g=>'<div class="g"><div class="k">'+esc(g[0])+'</div><div class="v">'+fmt(g[1])+'</div></div>').join('')+'</div>';
+  h+='<div class="list">'+t.items.map((it,i)=>{
+    const k=t.id+i;const o=open.has(k);
+    return '<div class="acc" data-open="'+(o?1:0)+'" data-k="'+k+'"><button aria-expanded="'+o+'"><span class="t">'+esc(it.t)+'<span class="s">'+esc(it.s)+'</span></span>'+(it.fit?'<span class="badge b-'+it.fit[0]+'">'+esc(it.fit[1])+'</span>':'')+'<span class="chev"></span></button>'+itemBody(it,t.id).replace('class="body" hidden','class="body"'+(o?'':' hidden'))+'</div>';
+  }).join('')+'</div>';
+  (t.after||[]).forEach(a=>{h+='<div class="box"><h3>'+esc(a.h)+'</h3><p>'+fmt(a.p)+'</p></div>'});
+  return h;
+}
+function callsView(t){
+  let saved={};try{saved=JSON.parse(ls('docs')||'{}')}catch(e){}
+  let h='<div class="hero" style="background:var('+t.color+')"><h1>'+esc(t.title)+'</h1><p>Vier Fragen entscheiden, welche Wege wirklich offen sind. Du kannst sie in vier Anrufen klären.</p></div>';
+  h+='<div class="box"><h3>Diese Anrufe helfen dir weiter</h3>'+CALLS.map(callHtml).join('')+'</div>';
+  h+='<div class="box"><h3>Das fehlt noch von dir</h3><ul>'+MISSING.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><p style="color:var(--muted);font-size:.93rem">Bei der Trainerbefugnis hängt daran, ob sie bei der Polizei Berlin als Trainernachweis zählt.</p></div>';
+  h+='<div class="box"><h3>Unterlagen sammeln</h3><p style="color:var(--muted);font-size:.93rem">Fast alle Bewerbungen verlangen sie als PDF. Hake ab, was du schon hast.</p><ul class="chk">'+DOCS.map((x,i)=>'<li><label><input type="checkbox" data-doc="'+i+'"'+(saved[i]?' checked':'')+'><span>'+esc(x)+'</span></label></li>').join('')+'</ul></div>';
+  h+='<div class="box"><h3>Nicht geprüft</h3><p>Tierberufe außerhalb der Polizei, privater Personenschutz im Detail, aktuelle Berliner Aufstiegsverordnung, Fristen der nächsten Runden. Fristen und Gehälter ändern sich, prüf sie also vor jeder Bewerbung auf der verlinkten Originalseite gegen.</p></div>';
+  return h;
+}
+function homeView(){
+  let h='<h1>Dein Jobplan</h1><p class="lead">Tipp ein Thema an. Dort klappen die einzelnen Wege auf, mit Verdienst, Voraussetzungen, Anrufen und Links.</p>';
+  h+='<div class="tiles">'+T.map(t=>'<button class="tile'+(t.kind==='calls'?' t-call':'')+'" style="'+(t.kind==='calls'?'':'background:var('+t.color+')')+'" data-go="'+t.id+'"><h2>'+esc(t.title)+'</h2><p>'+esc(t.sub)+'</p><span class="n">'+(t.items?t.items.length+(t.items.length===1?' Weg':' Wege'):'4 Anrufe, Checkliste')+' ›</span></button>').join('')+'</div>';
+  h+='<div class="alert"><b>Dringend:</b> Die Frist für 112 Dual bei der Berliner Feuerwehr läuft morgen (25.11.2026) ab. Je nach Schulabschluss lohnt sich ein Anruf bei der Bewerbungshotline <b>030 / 387 30 66 88</b>.</div>';
+  h+='<div class="box"><h3>Kurzfazit</h3><p>Der Wechsel zur Diensthundführereinheit der Polizei Berlin ist der einzige Weg, bei dem du keine neue Ausbildung brauchst und kein Gehalt verlierst. Personenschutz verlangt den gehobenen Dienst, Zoll und Feuerwehr eine neue Ausbildung.</p><p><b>Empfohlene Reihenfolge:</b> zuerst bei der eigenen Dienststelle zu Diensthundführer-Stellen und zum Aufstieg in den gehobenen Dienst fragen. Beides ist ein Anruf und kostet nichts. Zoll und Feuerwehr nur, wenn beides nicht klappt.</p></div>';
+  h+='<div class="box"><h3>Grundlage</h3><p>Du bist 30, hast 7 Jahre Polizei, bist Polizeiobermeisterin und hast eine Trainerbefugnis im Kampfsport. Dein Wunschort ist Berlin oder die Ostsee, dein Ziel sind ca. 3.000 € netto nach der Ausbildung. Während der Ausbildung wären 1.800 bis 2.000 € in Ordnung.</p></div>';
+  h+='<div class="box"><h3>Verdienst auf einen Blick</h3><p>Grundgehalt als Beamtin in Berlin, brutto pro Monat, gültig ab 1. April 2026 laut <a href="'+U[0]+'" target="_blank" rel="noopener">Besoldungstabelle Berlin</a>.</p>'+tableHtml({head:['Gruppe','Stufe 1','Stufe 8','Wo das für dich gilt'],rows:[['A 7','3.020,50 €','3.742,25 €','Brandmeister, Berliner Feuerwehr'],['A 8','3.177,20 €','4.050,07 €','Oberbrandmeister, Berliner Feuerwehr; Polizeiobermeister (deine jetzige Gruppe)'],['A 9','3.352,48 €','4.305,36 €','Beförderungsstufe, hier nur zur Orientierung'],['A 12','4.331,21 €','5.855,67 €','Personenschutz, Polizei Berlin (LKA 61)']]})+'<p style="color:var(--muted);font-size:.93rem"><b>Brutto ist nicht netto:</b> Von den Beträgen gehen Steuern sowie Kranken- und Pflegeversicherung ab. Dein Ziel von 3.000 € netto ist noch nicht auf einen Bruttobetrag umgerechnet. Zulagen (zum Beispiel Familienzuschlag) sind nicht eingerechnet. Welche Stufe du heute hast, ist noch offen.</p></div>';
+  h+='<div class="box"><h3>Kurz erklärt</h3><dl class="rows">'+GLOSS.map(g=>'<dt>'+esc(g[0])+'</dt><dd>'+esc(g[1])+'</dd>').join('')+'</dl></div>';
+  h+='<p class="foot">Stand 24.11.2026. Recherche aus offiziellen Ausschreibungen, Quellen jeweils verlinkt. Seiten, die sich nicht öffnen ließen, sind bei den Links vermerkt. Fristen, Gehälter und Voraussetzungen bitte immer auf der verlinkten Originalseite gegenprüfen.</p>';
+  return h;
+}
+function render(){
+  const id=(location.hash||'').slice(1);
+  const t=T.find(x=>x.id===id);
+  let h='<div class="top"><span class="crumb">'+(t?'Dein Jobplan › '+esc(t.title):'Stand 24.11.2026')+'</span>'+(t?'<button class="back" data-go="">‹ Alle Themen</button>':'')+'</div>';
+  h+=t?(t.kind==='calls'?callsView(t):topicView(t)):homeView();
+  if(t)h+='<p style="margin-top:24px"><button class="back" data-go="">‹ Alle Themen</button></p>';
+  app.innerHTML=h;
+  window.scrollTo(0,0);
+}
+app.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g){const v=g.getAttribute('data-go');if(v)location.hash=v;else{history.pushState('',document.title,location.pathname);render()}return}
+  const c=e.target.closest('[data-copy]');
+  if(c){const v=c.getAttribute('data-copy');const done=()=>{c.textContent='Kopiert'};
+    try{navigator.clipboard.writeText(v).then(done,()=>{c.textContent=v})}catch(x){c.textContent=v}return}
+  const b=e.target.closest('.acc>button');
+  if(b){const a=b.parentElement;const k=a.dataset.k;const o=!open.has(k);o?open.add(k):open.delete(k);
+    a.dataset.open=o?1:0;b.setAttribute('aria-expanded',o);a.querySelector('.body').hidden=!o}
+});
+app.addEventListener('change',e=>{
+  const d=e.target.closest('[data-doc]');
+  if(d){let s={};try{s=JSON.parse(ls('docs')||'{}')}catch(x){}s[d.dataset.doc]=d.checked;ls('docs',JSON.stringify(s))}
+});
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body></html>
